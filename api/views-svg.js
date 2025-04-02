@@ -1,40 +1,51 @@
-const { put, list, get } = require('@vercel/blob');
+const { put, get } = require('@vercel/blob');
 
 module.exports = async (req, res) => {
   try {
-    // IMPORTANT: Fixed static pathname - prevents random hash generation
-    const COUNTER_PATH = "counter/saviru-views.txt";
+    // Use fixed values provided
     const username = "Saviru";
+    const formattedDateTime = "2025-04-02 17:08:45";
     
-    // Get current counter value or initialize
+    // IMPORTANT: Use a fully qualified, fixed pathname
+    const BLOB_PATH = 'counters/profile-views.txt';
+    
+    // Get current counter value or initialize to 0
     let viewCounter = 0;
     try {
-      // Use pathname instead of variable key
-      const blob = await get(COUNTER_PATH, { type: 'text' });
+      // Use proper error handling around the get operation
+      const blob = await get(BLOB_PATH);
       if (blob) {
-        viewCounter = parseInt(blob, 10) || 0;
-        console.log(`Retrieved existing count: ${viewCounter}`);
-      } else {
-        console.log("No existing counter found, starting at 0");
+        const text = await blob.text();
+        const parsed = parseInt(text, 10);
+        // Only update if the parsed value is a valid number
+        if (!isNaN(parsed)) {
+          viewCounter = parsed;
+        }
       }
     } catch (error) {
-      console.log("First-time counter initialization");
+      console.log("Counter not found, initializing to 0");
+      // Continue with default 0
     }
     
     // Increment counter
     viewCounter++;
     
-    // Save updated counter with explicit pathname
-    await put(COUNTER_PATH, Buffer.from(viewCounter.toString()), {
-      access: 'public',
-      contentType: 'text/plain',
-      pathname: COUNTER_PATH // This ensures the same path is used
-    });
+    // Save counter back to the SAME pathname
+    try {
+      await put(
+        BLOB_PATH,
+        Buffer.from(viewCounter.toString()),
+        {
+          pathname: BLOB_PATH,
+          contentType: 'text/plain',
+          access: 'public'
+        }
+      );
+    } catch (error) {
+      console.error("Failed to update counter:", error);
+    }
     
-    // Use the provided timestamp
-    const formattedDateTime = "2025-04-02 17:05:11";
-    
-    // Generate SVG with animations
+    // Generate SVG with entry animation
     const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="180" height="60" viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -77,10 +88,10 @@ module.exports = async (req, res) => {
   </g>
 </svg>`;
     
-    // Set cache busting headers
+    // Set aggressive anti-caching headers
     const timestamp = Date.now();
     res.setHeader('Content-Type', 'image/svg+xml');
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.setHeader('ETag', `W/"${timestamp}"`);
