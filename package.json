@@ -1,15 +1,9 @@
 {
     "name": "profile-views-counter",
     "version": "1.0.0",
-    "description": "Real-time profile views counter using Vercel",
+    "description": "Simple profile views counter",
     "main": "index.js",
     "scripts": {
       "dev": "vercel dev"
-    },
-    "dependencies": {
-      "@vercel/kv": "^0.2.0"
-    },
-    "devDependencies": {
-      "vercel": "^32.0.0"
     }
   }
