@@ -1,8 +1,8 @@
-name: Profile Views Counter
+name: Weekly Profile Views Counter
 on:
   schedule:
-    # Run every 6 hours
-    - cron: '0 */6 * * *'
+    # Run once per week on Sunday at midnight UTC
+    - cron: '0 0 * * 0'
   workflow_dispatch:
 
 jobs:
@@ -11,20 +11,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3name: Weekly Profile Views Counter
-on:
-  schedule:
-    # Run once per week on Sunday at midnight UTC
-    - cron: '0 0 * * 0'
-  workflow_dispatch:  # Allows manual triggering of the workflow
-
-jobs:
-  count-and-update:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
           fetch-depth: 1
       
@@ -42,7 +30,7 @@ jobs:
           echo "Updated on $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          USERNAME: 'Saviru'  # Using your username
+          USERNAME: 'Saviru'
       
       - name: Commit and push if changed
         run: |
@@ -57,41 +45,3 @@ jobs:
             git commit -m "Weekly update: profile views counter ($(date -u '+%Y-%m-%d'))"
             git push
           fi
-        with:
-          fetch-depth: 0
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      
-      - name: Install dependencies
-        run: npm install axios fs-extra
-
-      - name: List files before SVG generation
-        run: ls -la
-      
-      - name: Update view count and generate animated SVG
-        run: |
-          node update-profile-views.js
-          # Make sure the file is created
-          if [ ! -f "profile-views.svg" ]; then
-            echo "SVG file was not created, creating a default one"
-            echo '<svg width="350" height="120" xmlns="http://www.w3.org/2000/svg"><rect width="350" height="120" fill="#3498db"/><text x="175" y="60" font-family="Arial" font-size="20" fill="white" text-anchor="middle">Profile Views: 1</text></svg>' > profile-views.svg
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          USERNAME: ${{ github.repository_owner }}
-      
-      - name: List files after SVG generation
-        run: |
-          ls -la
-          cat profile-views.svg
-      
-      - name: Commit and push if changed
-        run: |
-          git config --global user.name 'GitHub Actions[View-count]'
-          git config --global user.email 'actions@github.com'
-          git add profile-views.svg
-          git commit -m 'Update profile views counter and animation' || echo "No changes to commit"
-          git push
