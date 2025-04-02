@@ -2,21 +2,22 @@ const { put, list, get } = require('@vercel/blob');
 
 module.exports = async (req, res) => {
   try {
+    // Get the current date and time in UTC
     const now = new Date();
     const formattedDateTime = now.toISOString()
       .replace('T', ' ')
       .replace(/\.\d+Z$/, '');
 
-    const username = "Saviru";
 
-    
+    // Username for the SVG  
+    const username = "Saviru";
 
     console.log("Formatted DateTime:", formattedDateTime);
     
-    // Fixed counter key
+    // File name for the counter
     const COUNTER_KEY = "saviru-visits";
     
-    // Step 1: Find the current counter value
+    // Find the current counter value
     let viewCounter = 0;
     let counterFound = false;
     
@@ -24,7 +25,6 @@ module.exports = async (req, res) => {
       // List all existing blobs to find our counter file
       const { blobs } = await list({ prefix: COUNTER_KEY });
       
-      // Sort by upload date - most recent first
       const sortedBlobs = blobs.sort((a, b) => 
         new Date(b.uploadedAt) - new Date(a.uploadedAt)
       );
@@ -46,14 +46,12 @@ module.exports = async (req, res) => {
       }
     } catch (error) {
       console.error("Error reading counter:", error);
-      // Continue with default 0
     }
     
-    // Step 2: Increment the counter
+
     viewCounter++;
     
-    // Step 3: Create a new counter file with timestamp to make it unique
-    // This prevents collisions but still lets us track the counter
+    // Read and save file (path)
     const timestamp = Date.now();
     const newCounterPath = `${COUNTER_KEY}-${timestamp}.txt`;
     
@@ -75,7 +73,7 @@ module.exports = async (req, res) => {
     const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="180" height="70" viewBox="0 0 180 70" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- Main Background Gradient -->
+    <!-- Background Gradient -->
     <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#021D4A"/>
       <stop offset="100%" stop-color="#520806"/>
@@ -96,7 +94,6 @@ module.exports = async (req, res) => {
       <animate attributeName="y1" values="0%;100%;0%" dur="10s" repeatCount="indefinite" />
     </linearGradient>
     
-    <!-- Filters for Glow Effects -->
     <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
       <feGaussianBlur stdDeviation="2" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
@@ -206,15 +203,13 @@ module.exports = async (req, res) => {
     </style>
   </defs>
   
-  <!-- Main Container -->
+
   <g class="container">
-    <!-- Background with Gradient -->
     <rect x="0" y="0" width="180" height="70" rx="6" ry="6" fill="url(#mainGradient)"/>
     
-    <!-- Background Pattern -->
+ 
     <rect x="0" y="0" width="180" height="70" rx="6" ry="6" fill="url(#starsPattern)" opacity="0.6"/>
     
-    <!-- Dynamic Animated Gradient Overlay -->
     <rect x="0" y="0" width="180" height="70" rx="6" ry="6" fill="url(#animGradient)" opacity="0.5"/>
     
     <!-- Border Animation -->
@@ -244,7 +239,7 @@ module.exports = async (req, res) => {
   </g>
 </svg>`;
     
-    // Set extremely aggressive anti-caching headers
+    // anti-caching headers
     res.setHeader('Content-Type', 'image/svg+xml');
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
     res.setHeader('Surrogate-Control', 'no-store');
