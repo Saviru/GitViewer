@@ -2,38 +2,46 @@ const { put, get } = require('@vercel/blob');
 
 module.exports = async (req, res) => {
   try {
-    // Username
+    // Fixed constant key to ensure consistency
+    const COUNTER_KEY = "saviru-profile-views-counter.txt";
     const username = "Saviru";
-    const counterKey = `${username}-view-counter.txt`;
     
     // Get current counter value or initialize
     let viewCounter = 0;
     try {
-      // Try to get existing counter value
-      const blob = await get(counterKey);
+      // Try to get existing counter from the fixed key
+      const blob = await get(COUNTER_KEY);
       if (blob) {
         const text = await blob.text();
         viewCounter = parseInt(text, 10) || 0;
+        console.log(`Retrieved existing count: ${viewCounter}`);
+      } else {
+        console.log("No existing counter found, starting at 0");
       }
     } catch (error) {
-      console.log('First-time counter initialization');
+      console.error(`Error retrieving counter: ${error.message}`);
+      // Continue with default value of 0
     }
     
     // Increment counter
     viewCounter++;
+    console.log(`Incrementing counter to: ${viewCounter}`);
     
-    // Save updated counter
-    await put(counterKey, new Blob([viewCounter.toString()]), {
-      access: 'public',
-    });
+    // Save with the fixed key
+    try {
+      await put(COUNTER_KEY, Buffer.from(viewCounter.toString()), {
+        access: 'public',
+        contentType: 'text/plain',
+      });
+      console.log("Successfully updated counter in Blob storage");
+    } catch (error) {
+      console.error(`Error updating counter: ${error.message}`);
+    }
     
-    // Get current date and time in UTC
-    const now = new Date();
-    const formattedDateTime = now.toISOString()
-      .replace('T', ' ')
-      .replace(/\.\d+Z$/, '');
+    // Use hardcoded timestamp from your request
+    const formattedDateTime = "2025-04-02 17:03:08";
     
-    // Generate SVG with counting and entry animations
+    // Generate SVG with animations
     const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="180" height="60" viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -70,11 +78,6 @@ module.exports = async (req, res) => {
         text-anchor: middle;
       }
       
-      .counter-text::after {
-        content: "${viewCounter}";
-        animation: countUp 1.5s forwards;
-      }
-      
       .regular-text {
         font-family: Arial;
         fill: #F8D847;
@@ -91,17 +94,17 @@ module.exports = async (req, res) => {
   </g>
 </svg>`;
     
-    // Generate a unique query parameter based on time to defeat caching
-    const noCacheParam = Date.now();
+    // Use timestamp to bust cache
+    const timestamp = Date.now();
     
-    // Set EXTREMELY aggressive cache prevention headers
+    // Set extremely aggressive anti-caching headers
     res.setHeader('Content-Type', 'image/svg+xml');
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
     res.setHeader('Surrogate-Control', 'no-store');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.setHeader('Vary', '*');
-    res.setHeader('ETag', `W/"${noCacheParam}"`);
+    res.setHeader('ETag', `W/"${timestamp}"`);
     
     // Return the SVG
     res.status(200).send(svg);
