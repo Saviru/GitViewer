@@ -6,7 +6,9 @@
 <img height="300" src="https://github-profile-views-nine.vercel.app/tests/prototype.svg" alt="Profile views demo">
 
 <br><br>
-Visit my profile to see a working sample
+## Visit my profile to see a working sample.
+
+### <a href="https://github.com/Saviru">Github: @Saviru</a>
 
 
 <br><br>
