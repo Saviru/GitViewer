@@ -11,7 +11,52 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v3name: Weekly Profile Views Counter
+on:
+  schedule:
+    # Run once per week on Sunday at midnight UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  count-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      
+      - name: Install dependencies
+        run: npm install axios fs-extra
+      
+      - name: Update view count and generate animated SVG
+        run: |
+          node update-profile-views.js
+          echo "Updated on $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: 'Saviru'  # Using your username
+      
+      - name: Commit and push if changed
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add profile-views.svg
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Weekly update: profile views counter ($(date -u '+%Y-%m-%d'))"
+            git push
+          fi
         with:
           fetch-depth: 0
       
