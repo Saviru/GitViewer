@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="350" height="120" viewBox="0 0 350 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3498db"/>
+      <stop offset="100%" stop-color="#9b59b6"/>
+    </linearGradient>
+  </defs>
+  
+  <rect x="0" y="0" width="350" height="120" rx="10" ry="10" fill="url(#gradient)"/>
+  
+  <text x="175" y="40" font-family="Arial" font-size="22" font-weight="bold" fill="white" text-anchor="middle">Profile Views</text>
+  
+  <text x="175" y="85" font-family="Arial" font-size="35" font-weight="bold" fill="white" text-anchor="middle">1</text>
+  
+  <circle cx="175" cy="85" r="60" fill="white" opacity="0" stroke-width="2" stroke="white">
+    <animate attributeName="r" from="60" to="75" dur="1.5s" begin="0s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" from="0.3" to="0" dur="1.5s" begin="0s" repeatCount="indefinite"/>
+  </circle>
+</svg>
