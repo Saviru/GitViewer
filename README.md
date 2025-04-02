@@ -1,6 +1,6 @@
 # Profile Views Counter
 
-Deploy with Vercel
+[Deploy with Vercel](https://vercel.com/new/clone?repository-url=https://github.com/Saviru/profile-views-counter)
 
 A serverless profile views counter that generates an animated SVG showing how many times your GitHub profile has been viewed. Built with Vercel serverless functions.
 
