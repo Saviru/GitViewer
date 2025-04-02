@@ -1,6 +1,9 @@
 # Profile Views Counter
 
 ### I'm still working this !
+
+Come again ! This is gonna be awesome a project.
+
 <br><br>
 
 <img height="300" src="https://github-profile-views-nine.vercel.app/tests/prototype.svg" alt="Profile views demo">
