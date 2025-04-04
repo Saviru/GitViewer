@@ -8,6 +8,8 @@ Come again ! This is gonna be an awesome project.
 
 <img height="300" src="https://github-profile-views-nine.vercel.app/tests/prototype.svg" alt="Profile views demo">
 
+###### This is only a sample. (NOT WORKING)
+
 <br><br>
 ## Visit my profile to see a working sample.
 
