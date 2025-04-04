@@ -2,7 +2,7 @@
 
 ### I'm still working this !
 
-Come again ! This is gonna be awesome a project.
+Come again ! This is gonna be an awesome project.
 
 <br><br>
 
