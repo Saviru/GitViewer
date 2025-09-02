@@ -1,6 +1,6 @@
 # Profile Views Counter
 
-### I'm still working this !
+### I'm still working on this !
 
 Come again ! This is gonna be an awesome project.
 
