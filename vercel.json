@@ -1,8 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "engines": {
-    "node": "22.x"
-  },
   "functions": {
     "pages/api/**/*.ts": {
       "runtime": "nodejs@22x"
