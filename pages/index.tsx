@@ -74,14 +74,14 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>GitHub Profile Views Counter</title>
+        <title>GitViewer</title>
         <meta name="description" content="Generate custom profile view counters for your GitHub README" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <div className="container">
         <header>
-          <h1>GitHub Profile Views Counter</h1>
+          <h1>GitViewer - GitHub Profile Views Counter (Beta)</h1>
           <p>Create a custom profile views counter for your GitHub README</p>
         </header>
 
