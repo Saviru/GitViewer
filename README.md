@@ -1,33 +1,46 @@
-# Profile Views Counter
+# GitHub Profile Views Counter
 
-### I'm still working on this !
+A customizable GitHub profile views counter that you can embed in your README with custom themes and styling options.
 
-Come again ! This is gonna be an awesome project.
+## Features
 
-<br><br>
+- 📊 Real-time view counting
+- 🎨 Custom themes with gradient support
+- ⚡ Fast image generation with Canvas
+- 🚀 Vercel hosting ready
+- 📱 Responsive web interface
+- 🔧 TypeScript support
 
-<img height="300" src="https://github-profile-views-nine.vercel.app/tests/prototype.svg" alt="Profile views demo">
+## Setup
 
-###### This is only a sample. (NOT WORKING)
+1. Clone this repository
+2. Install dependencies: `npm install`
+3. Set up Vercel KV database
+4. Deploy to Vercel
+5. Add your KV credentials to environment variables
 
-<br><br>
-## Visit my profile to see a working sample.
+## Usage
 
-### <a href="https://github.com/Saviru">Github: @Saviru</a>
+Visit the deployed application, enter your GitHub username, customize your theme, and copy the generated markdown code to your profile README.
 
+## API Endpoint
 
-<br><br>
-## 📄 License <hr>
+```
+GET /api/views/{username}?theme={themeName}
+GET /api/views/{username}?customTheme={encodedThemeJSON}
+```
 
-This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details.
+## Environment Variables
 
-###### Copyright © 2025 Saviru Kashmira Atapattu
+- `KV_REST_API_URL`: Vercel KV REST API URL
+- `KV_REST_API_TOKEN`: Vercel KV REST API Token
 
-<br>
+## Development
 
-## 🙏 Credits <hr>
+```bash
+npm run dev
+```
 
-Developed and maintained by [@Saviru](https://github.com/Saviru)
-<br><br>
-<hr>
-<p align="center">Made with ❤️ for the GitHub community </p> 
+## Deployment
+
+Deploy to Vercel with one click or use the Vercel CLI.

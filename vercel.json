@@ -1,8 +1,11 @@
 {
-    "version": 2,
-    "functions": {
-      "api/**/*.js": {
-        "runtime": "@vercel/node@2.0.0"
-      }
+  "functions": {
+    "pages/api/**/*.ts": {
+      "runtime": "nodejs18.x"
     }
+  },
+  "env": {
+    "KV_REST_API_URL": "@kv_rest_api_url",
+    "KV_REST_API_TOKEN": "@kv_rest_api_token"
   }
+}
