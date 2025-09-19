@@ -1,7 +1,7 @@
 {
   "functions": {
     "pages/api/**/*.ts": {
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs22.x"
     }
   },
   "rewrites": [
