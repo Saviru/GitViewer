@@ -1,7 +1,8 @@
 {
+  "version": 2,
   "functions": {
     "pages/api/**/*.ts": {
-      "runtime": "nodejs22.x"
+      "runtime": "vercel-nodejs@22.19.0"
     }
   },
   "rewrites": [
