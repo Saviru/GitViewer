@@ -1,0 +1,7 @@
+.next
+node_modules
+package-lock.json
+.DS_Store
+next-env.d.ts
+build-manifest.json
+npm-debug.log*
