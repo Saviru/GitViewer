@@ -1,38 +1,48 @@
 import { ViewData } from '../types';
-import fs from 'fs';
-import path from 'path';
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'views.json');
+// In-memory storage (will persist during function lifetime)
+// Note: This resets on cold starts, but works for serverless environments
+const memoryStorage: Record<string, ViewData> = {};
+const ipCooldowns: Record<string, Record<string, number>> = {}; // username -> ip -> timestamp
 
-// Ensure data directory exists
-const ensureDataDir = () => {
-  const dataDir = path.dirname(DATA_FILE);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-};
+// Cooldown period in milliseconds (e.g., 1 hour = 3600000ms)
+const IP_COOLDOWN_MS = 1 * 60 * 60 * 1000; // 1 hour
 
 export const getViewData = (): Record<string, ViewData> => {
-  try {
-    ensureDataDir();
-    if (!fs.existsSync(DATA_FILE)) {
-      return {};
-    }
-    const data = fs.readFileSync(DATA_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading view data:', error);
-    return {};
-  }
+  return memoryStorage;
 };
 
 export const saveViewData = (data: Record<string, ViewData>): void => {
-  try {
-    ensureDataDir();
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-  } catch (error) {
-    console.error('Error saving view data:', error);
+  // Update in-memory storage
+  Object.assign(memoryStorage, data);
+};
+
+// Check if IP is in cooldown period
+const isIPInCooldown = (username: string, clientIP: string): boolean => {
+  if (!ipCooldowns[username] || !ipCooldowns[username][clientIP]) {
+    return false;
   }
+  
+  const lastVisit = ipCooldowns[username][clientIP];
+  const now = Date.now();
+  
+  return (now - lastVisit) < IP_COOLDOWN_MS;
+};
+
+// Update IP cooldown
+const updateIPCooldown = (username: string, clientIP: string): void => {
+  if (!ipCooldowns[username]) {
+    ipCooldowns[username] = {};
+  }
+  ipCooldowns[username][clientIP] = Date.now();
+  
+  // Clean up old entries (older than 24 hours)
+  const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+  Object.keys(ipCooldowns[username]).forEach(ip => {
+    if (ipCooldowns[username][ip] < oneDayAgo) {
+      delete ipCooldowns[username][ip];
+    }
+  });
 };
 
 export const updateUserViews = (username: string, clientIP: string): ViewData => {
@@ -41,23 +51,27 @@ export const updateUserViews = (username: string, clientIP: string): ViewData =>
     username,
     count: 0,
     lastVisit: new Date().toISOString(),
-    ips: []
+    ips: [] // Keep for backward compatibility, but use cooldown system
   };
 
-  // Check if IP already exists (prevent same IP from incrementing multiple times)
-  if (!userData.ips.includes(clientIP)) {
+  // Use cooldown-based approach instead of storing all IPs
+  const shouldIncrement = !isIPInCooldown(username, clientIP);
+  
+  if (shouldIncrement) {
     userData.count += 1;
-    userData.ips.push(clientIP);
-    userData.lastVisit = new Date().toISOString();
+    updateIPCooldown(username, clientIP);
     
-    // Keep only last 1000 IPs to prevent unlimited growth
-    if (userData.ips.length > 1000) {
-      userData.ips = userData.ips.slice(-1000);
+    // Update IPs array for display purposes (keep last 10 for reference)
+    if (!userData.ips.includes(clientIP)) {
+      userData.ips.push(clientIP);
+      if (userData.ips.length > 10) {
+        userData.ips = userData.ips.slice(-10);
+      }
     }
-  } else {
-    // Update last visit time even if not incrementing count
-    userData.lastVisit = new Date().toISOString();
   }
+  
+  // Always update last visit time
+  userData.lastVisit = new Date().toISOString();
 
   allData[username] = userData;
   saveViewData(allData);

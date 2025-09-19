@@ -20,6 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Get client IP and update views
     const clientIP = getClientIP(req);
+    console.log(`IP for ${username}: ${clientIP}`); // Debug logging
     const viewData = updateUserViews(username, clientIP);
 
     // Parse theme if provided
