@@ -2,8 +2,22 @@ import { ViewData } from '../types';
 
 // In-memory storage (will persist during function lifetime)
 // Note: This resets on cold starts, but works for serverless environments
-const memoryStorage: Record<string, ViewData> = {};
-const ipCooldowns: Record<string, Record<string, number>> = {}; // username -> ip -> timestamp
+// Using globalThis to ensure persistence across multiple calls
+
+declare global {
+  var memoryStorage: Record<string, ViewData> | undefined;
+  var ipCooldowns: Record<string, Record<string, number>> | undefined;
+}
+
+if (!globalThis.memoryStorage) {
+  globalThis.memoryStorage = {};
+}
+if (!globalThis.ipCooldowns) {
+  globalThis.ipCooldowns = {};
+}
+
+const memoryStorage: Record<string, ViewData> = globalThis.memoryStorage;
+const ipCooldowns: Record<string, Record<string, number>> = globalThis.ipCooldowns;
 
 // Cooldown period in milliseconds (e.g., 1 hour = 3600000ms)
 const IP_COOLDOWN_MS = 1 * 60 * 60 * 1000; // 1 hour
@@ -45,17 +59,35 @@ const updateIPCooldown = (username: string, clientIP: string): void => {
   });
 };
 
-export const updateUserViews = (username: string, clientIP: string): ViewData => {
+// Get current view data for a user (always returns latest count)
+export const getCurrentUserViews = (username: string): ViewData => {
   const allData = getViewData();
-  const userData = allData[username] || {
+  return allData[username] || {
     username,
     count: 0,
     lastVisit: new Date().toISOString(),
-    ips: [] // Keep for backward compatibility, but use cooldown system
+    ips: []
   };
+};
+
+export const updateUserViews = (username: string, clientIP: string): ViewData => {
+  // Always work directly with the global storage to ensure we have the latest data
+  if (!memoryStorage[username]) {
+    memoryStorage[username] = {
+      username,
+      count: 0,
+      lastVisit: new Date().toISOString(),
+      ips: []
+    };
+  }
+  
+  // Get the current data (always the most up-to-date)
+  const userData = memoryStorage[username];
 
   // Use cooldown-based approach instead of storing all IPs
   const shouldIncrement = !isIPInCooldown(username, clientIP);
+  
+  console.log(`IP ${clientIP} for ${username}: shouldIncrement=${shouldIncrement}, currentCount=${userData.count}`);
   
   if (shouldIncrement) {
     userData.count += 1;
@@ -68,13 +100,15 @@ export const updateUserViews = (username: string, clientIP: string): ViewData =>
         userData.ips = userData.ips.slice(-10);
       }
     }
+    
+    console.log(`Incremented count for ${username} to ${userData.count}`);
   }
   
   // Always update last visit time
   userData.lastVisit = new Date().toISOString();
 
-  allData[username] = userData;
-  saveViewData(allData);
+  // The data is already updated in memoryStorage, no need to reassign
   
+  // Return the current state (which includes the latest count)
   return userData;
 };
