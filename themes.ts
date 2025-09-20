@@ -11,6 +11,19 @@ export const predefinedThemes: Theme[] = [
     lastVisitColor: '#888888'
   },
   {
+    name: 'WatchDog',
+    background: {
+      type: 'gradient',
+      gradient: {
+        rotation: 35,
+        color1: '#021D4A',
+        color2: '#520806'
+      }
+    },
+    countColor: '#EBD208',
+    lastVisitColor: '#B6EBE0'
+  },
+  {
     name: 'Ocean',
     background: {
       type: 'gradient',
