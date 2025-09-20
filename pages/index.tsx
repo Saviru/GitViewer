@@ -48,10 +48,24 @@ export default function Home() {
     return () => clearTimeout(timeoutId);
   }, [username]);
 
+  // Helper function to check if theme is predefined
+  const isPredefinedTheme = (theme: Theme): boolean => {
+    return predefinedThemes.some(predefined => predefined.name === theme.name && theme.name !== 'Custom');
+  };
+
   useEffect(() => {
     if (username && isValidUsername) {
-      const themeParam = encodeURIComponent(JSON.stringify(selectedTheme));
-      const url = `${window.location.origin}/api/views/${username}?theme=${themeParam}`;
+      let url: string;
+      
+      if (isPredefinedTheme(selectedTheme)) {
+        // Use simple theme name for predefined themes
+        url = `${window.location.origin}/api/views/${username}?theme=${encodeURIComponent(selectedTheme.name)}`;
+      } else {
+        // Use full theme object for custom themes
+        const themeParam = encodeURIComponent(JSON.stringify(selectedTheme));
+        url = `${window.location.origin}/api/views/${username}?theme=${themeParam}`;
+      }
+      
       setGeneratedUrl(url);
     } else {
       setGeneratedUrl('');
@@ -81,7 +95,7 @@ export default function Home() {
 
       <div className="container">
         <header>
-          <h1>GitViewer - GitHub Profile Views Counter (Beta)</h1>
+          <h1>GitViewer - GitHub Profile Views Counter</h1>
           <p>Create a custom profile views counter for your GitHub README</p>
         </header>
 

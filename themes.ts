@@ -102,3 +102,8 @@ export const getBackgroundStyle = (theme: Theme): string => {
     return `linear-gradient(${rotation}deg, ${color1}, ${color2})`;
   }
 };
+
+export const getThemeByName = (themeName: string): Theme | null => {
+  const theme = predefinedThemes.find(t => t.name.toLowerCase() === themeName.toLowerCase());
+  return theme || null;
+};

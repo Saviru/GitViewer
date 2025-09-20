@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { updateUserViews } from '../../../utils/storage';
 import { validateGitHubUsername, getClientIP } from '../../../utils/github';
-import { getBackgroundStyle } from '../../../themes';
+import { getBackgroundStyle, getThemeByName } from '../../../themes';
 import { Theme } from '../../../types';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -34,10 +34,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     if (theme && typeof theme === 'string') {
-      try {
-        selectedTheme = JSON.parse(decodeURIComponent(theme));
-      } catch (e) {
-        console.error('Error parsing theme:', e);
+      // First try to find it as a predefined theme name
+      const predefinedTheme = getThemeByName(decodeURIComponent(theme));
+      
+      if (predefinedTheme) {
+        selectedTheme = predefinedTheme;
+        console.log(`Using predefined theme: ${selectedTheme.name}`);
+      } else {
+        // If not found as a theme name, try to parse as JSON (custom theme)
+        try {
+          selectedTheme = JSON.parse(decodeURIComponent(theme));
+          console.log(`Using custom theme: ${selectedTheme.name}`);
+        } catch (e) {
+          console.error('Error parsing theme:', e);
+          console.log('Falling back to default theme');
+        }
       }
     }
 
